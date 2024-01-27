@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1080045481597",
+    "project_id": "qarzsiz",
+    "storage_bucket": "qarzsiz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080045481597:android:a035a5390555148205cb14",
+        "android_client_info": {
+          "package_name": "com.example.qarzsiz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATlrNmHoX6BNTUUmTp6h4Y0dXWcxuAxr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
