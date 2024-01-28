@@ -54,19 +54,40 @@ class Product {
 }
 
 
-class UserShopModel {
-  final String id;
-  final List<Product> products;
+class UserDebtModel {
+  final List<ShopModel> shops;
+  final int amount;
+  final bool isPaid;
+  final DateTime createdAt;
 
-  UserShopModel({
-    required this.id,
-    required this.products
+  UserDebtModel({
+    required this.shops,
+    required this.amount,
+    required this.isPaid,
+    required this.createdAt
   });
 
-  factory UserShopModel.fromJson(Map<String, dynamic> json) {
-    return UserShopModel(
-      id: json['id'],
-      products: json['products'].map((product) => Product.fromJson(product)).toList(),
+  factory UserDebtModel.fromJson(Map<String, dynamic> json) {
+    return UserDebtModel(
+      shops: json['shops'].map((shop) => ShopModel.fromJson(shop)).toList(),
+      amount: json['amount'],
+      isPaid: json['isPaid'],
+      createdAt: json['created_at'],
+    );
+  }
+}
+
+
+class UserDebtListModel {
+  final List<UserDebtModel> userDebts;
+
+  UserDebtListModel({
+    required this.userDebts
+  });
+
+  factory UserDebtListModel.fromJson(Map<String, dynamic> json) {
+    return UserDebtListModel(
+      userDebts: json['userDebts'].map((userDebt) => UserDebtModel.fromJson(userDebt)).toList(),
     );
   }
 }

@@ -48,7 +48,7 @@ class UserService {
     }
   }
 
-  static Future<List<ShopModel>> fetchUserShps(String userId) async {
+    static Future<List<ShopModel>> fetchUserShps(String userId) async {
     print('fetching user shops');
     try {
       final shopCollection = FirebaseFirestore.instance.collection('user').doc(userId).collection('shops');
@@ -65,5 +65,25 @@ class UserService {
       return Future.error('Failed to get shops');
     }
   }
+
+
+  // TODO: fetch user debts from debts collection
+  static Future<List<ShopModel>> fetchUserDebts(String userId) async {
+    print('fetching user debts');
+    try {
+      final debtList = FirebaseFirestore.instance.collection('debts').doc(userId).collection('debt');
+      final userDebtList = await debtList.get();
+      print('userDebtList: $userDebtList');
+
+      return userDebtList;
+    } catch (e) {
+      print("error while fetching shops: $e");
+      return Future.error('Failed to get shops');
+    }
+  }
+
+  // TODO: fetch related shops from shops collection based on user debts collection data field 'shopId'
+
+  // TODO: fetch related products from shops collection doc field `shopId` and inside products collection doc field `productId` 
 
 }
