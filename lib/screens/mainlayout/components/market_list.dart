@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:qarzsiz/screens/shop/shop_model.dart';
+import 'package:qarzsiz/screens/single_shop_screen/components/product_list.dart';
+import 'package:qarzsiz/screens/user/user_reducer.dart';
 import 'package:qarzsiz/store/app/app_store.dart';
 import 'package:qarzsiz/utils/constants.dart';
 
@@ -22,7 +24,7 @@ class _MarketGridWidgetState extends State<MarketGridWidget> {
   Widget build(BuildContext context) {
       var state = StoreProvider.of<GlobalState>(context).state.appState.userState;
     
-    List<ShopModel> filteredShops = state.shopsList ?? [];
+    List<ShopModel> filteredShops = state.debList ?? [];
 
     return Column(
       children: [
@@ -52,7 +54,7 @@ class _MarketGridWidgetState extends State<MarketGridWidget> {
           ),
                             onChanged: (String value) {
                     // Filter the list of shops based on the search query
-                    filteredShops = (state.shopsList ?? []).where((shop) {
+                    filteredShops = (state.debList ?? []).where((shop) {
                       return shop.name.toLowerCase().contains(value.toLowerCase());
                     }).toList();
                     // Update the UI
@@ -86,11 +88,15 @@ class _MarketGridWidgetState extends State<MarketGridWidget> {
           child: 
           InkWell(
             onTap: () {
-              print('tapped $index');
+              store.dispatch(SelectShopAction(filteredShops[index]));
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => const ProductListWidget())
+              );
             },
             child:
               Image.network(
-                state.shopsList?[index].image ?? defaultPostImage,
+                state.debList?[index].image ?? defaultPostImage,
                 fit: BoxFit.cover,
               ),
           )

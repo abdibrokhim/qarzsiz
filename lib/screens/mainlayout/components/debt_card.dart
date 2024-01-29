@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:qarzsiz/store/app/app_store.dart';
+import 'package:intl/intl.dart';
 
-class TotalDeptWidget extends StatelessWidget {
-  final double totalDept;
-  final Map<String, double> deptDistribution; // Map of colors and their respective proportions
+class TotalDebtCard extends StatelessWidget {
+  final double totalDebt;
+  final double unpaidDebt; // Total amount of debt that is unpaid
 
-  const TotalDeptWidget({Key? key, required this.totalDept, required this.deptDistribution}) : super(key: key);
+  const TotalDebtCard({
+    Key? key,
+    required this.totalDebt,
+    required this.unpaidDebt, // Pass the unpaid debt amount here
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> colorBars = [];
-    deptDistribution.forEach((color, proportion) {
-      colorBars.add(
-        Expanded(
-          flex: (proportion * 100).toInt(),
-          child: Container(color: Color(int.parse(color))),
-        ),
-      );
-    });
+    // Calculate the proportion of unpaid debt
+    final double unpaidProportion = (totalDebt == 0) ? 0 : unpaidDebt / totalDebt;
 
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -30,14 +26,14 @@ class TotalDeptWidget extends StatelessWidget {
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 1,
             blurRadius: 6,
-            offset: Offset(0, 3), // changes position of shadow
+            offset: const Offset(0, 3), // changes position of shadow
           ),
         ],
       ),
       child: Column(
         children: [
-          Text('Total Dept'),
-          SizedBox(height: 5),
+          const Text('Total Debt'),
+          const SizedBox(height: 5),
           Stack(
             children: [
               Container(
@@ -47,15 +43,24 @@ class TotalDeptWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                 ),
               ),
-              Positioned.fill(
-                child: Row(
-                  children: colorBars,
+              Container(
+                height: 20,
+                width: MediaQuery.of(context).size.width * unpaidProportion, // Width is proportional to unpaid debt
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(5),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 5),
-          Text('${totalDept.toStringAsFixed(2)}'),
+          const SizedBox(height: 5),
+          Text(
+            '${NumberFormat('#,##0').format(totalDebt)} UZS',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

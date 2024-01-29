@@ -20,34 +20,34 @@ import 'package:rxdart/rxdart.dart';
 // }
 
 
-Stream<dynamic> fetchShopsEpic(Stream<dynamic> actions, EpicStore<GlobalState> store) {
+Stream<dynamic> fetchShopsWithDebtsEpic(Stream<dynamic> actions, EpicStore<GlobalState> store) {
   return actions
-      .where((action) => action is FetchMarketListAction)
-      .asyncMap((action) => UserService.fetchShops(action.userId))
+      .where((action) => action is FetchShopsWithDebtsAction)
+      .asyncMap((action) => UserService.fetchShopsWithDebts(action.userId))
       .flatMap<dynamic>((value) => Stream.fromIterable([
-            FetchMarketListSuccessAction(value),
+            FetchShopsWithDebtsResponse(value),
           ]))
       .onErrorResume((error, stackTrace) => Stream.fromIterable([
-            HandleGenericErrorAction('Error while fetching shops'),
+            HandleGenericErrorAction('Error while fetching fetchShopsWithDebts'),
           ]));
 }
 
-Stream<dynamic> fetchUserShopsEpic(Stream<dynamic> actions, EpicStore<GlobalState> store) {
+Stream<dynamic> fetchDebtDetailsForShopEpic(Stream<dynamic> actions, EpicStore<GlobalState> store) {
   return actions
-      .where((action) => action is FetchUserMarketListAction)
-      .asyncMap((action) => UserService.fetchUserShps(action.userId))
+      .where((action) => action is FetchDebtDetailsForShopAction)
+      .asyncMap((action) => UserService.fetchDebtDetailsForShop(action.userId, action.shopId))
       .flatMap<dynamic>((value) => Stream.fromIterable([
-            FetchUserMarketListSuccessAction(value),
+            FetchDebtDetailsForShopResponse(value),
           ]))
       .onErrorResume((error, stackTrace) => Stream.fromIterable([
-            HandleGenericErrorAction('Error while fetching shops'),
+            HandleGenericErrorAction('Error while fetching fetchDebtDetailsForShop'),
           ]));
 }
 
 
 List<Stream<dynamic> Function(Stream<dynamic>, EpicStore<GlobalState>)> userEffects = [
   // getUserAccessToken,
-  fetchShopsEpic,
-  fetchUserShopsEpic,
+  fetchShopsWithDebtsEpic,
+  fetchDebtDetailsForShopEpic,
 ];
 

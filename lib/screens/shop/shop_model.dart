@@ -1,10 +1,12 @@
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ShopModel {
   final String id;
   final String name;
   final String image;
   final String description;
-  final String rating;
-  final List<Product> products;
+  final int rating;
 
   ShopModel({
     required this.id,
@@ -12,7 +14,6 @@ class ShopModel {
     required this.image, 
     required this.description, 
     required this.rating,
-    required this.products
   });
 
   factory ShopModel.fromJson(Map<String, dynamic> json) {
@@ -22,72 +23,130 @@ class ShopModel {
       image: json['image'],
       description: json['description'],
       rating: json['rating'],
-      products: json['products'].map((product) => Product.fromJson(product)).toList(),
     );
   }
 }
 
-class Product {
+class ProductModel {
   final String id;
   final String name;
   final String image;
   final String description;
   final String price;
+  final String shopId;
+  final int total;
+  final DateTime createdAt;
 
-  Product({
+  ProductModel({
     required this.id,
     required this.name, 
     required this.image, 
     required this.description, 
-    required this.price
+    required this.price,
+    required this.shopId,
+    required this.total,
+    required this.createdAt,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    Timestamp? timestamp = json['createdAt'] as Timestamp?;
+    DateTime? createdAt;
+    if (timestamp != null) {
+      createdAt = timestamp.toDate();
+    }
+
+    return ProductModel(
       id: json['id'],
       name: json['name'],
       image: json['image'],
       description: json['description'],
       price: json['price'],
+      shopId: json['shop_id'],
+      total: json['total'],
+      createdAt: createdAt ?? DateTime.now(),
     );
   }
 }
 
 
-class UserDebtModel {
-  final List<ShopModel> shops;
-  final int amount;
-  final bool isPaid;
+
+class DebtRecord {
+  final String id;
+  final String userId;
+  final String shopId;
   final DateTime createdAt;
+  final String totalDebt;
 
-  UserDebtModel({
-    required this.shops,
-    required this.amount,
+  DebtRecord({
+    required this.id,
+    required this.userId, 
+    required this.shopId, 
+    required this.createdAt, 
+    required this.totalDebt,
+  });
+
+  factory DebtRecord.fromJson(Map<String, dynamic> json) {
+        Timestamp? timestamp = json['createdAt'] as Timestamp?;
+    DateTime? createdAt;
+    if (timestamp != null) {
+      createdAt = timestamp.toDate();
+    }
+    return DebtRecord(
+      id: json['id'],
+      userId: json['user_id'],
+      shopId: json['shop_id'],
+      createdAt: createdAt ?? DateTime.now(),
+      totalDebt: json['totalDebt'],
+    );
+  }
+}
+
+class DebtDetail {
+  final String id;
+  final String productId;
+  final int quantity;
+  final DateTime createdAt;
+  final bool isPaid;
+
+  DebtDetail({
+    required this.id,
+    required this.productId,
+    required this.quantity, 
+    required this.createdAt,
     required this.isPaid,
-    required this.createdAt
   });
 
-  factory UserDebtModel.fromJson(Map<String, dynamic> json) {
-    return UserDebtModel(
-      shops: json['shops'].map((shop) => ShopModel.fromJson(shop)).toList(),
-      amount: json['amount'],
+  factory DebtDetail.fromJson(Map<String, dynamic> json) {
+        Timestamp? timestamp = json['createdAt'] as Timestamp?;
+    DateTime? createdAt;
+    if (timestamp != null) {
+      createdAt = timestamp.toDate();
+    }
+    return DebtDetail(
+      id: json['id'],
+      productId: json['product_id'],
+      quantity: json['quantity'],
+      createdAt: createdAt ?? DateTime.now(),
       isPaid: json['isPaid'],
-      createdAt: json['created_at'],
     );
   }
 }
 
+class DebtDetailWithProduct {
+    final DebtDetail debtDetail;
+    final ProductModel product;
 
-class UserDebtListModel {
-  final List<UserDebtModel> userDebts;
+    DebtDetailWithProduct({
+        required this.debtDetail,
+        required this.product,
+    });
 
-  UserDebtListModel({
-    required this.userDebts
-  });
-
-  factory UserDebtListModel.fromJson(Map<String, dynamic> json) {
-    return UserDebtListModel(
-      userDebts: json['userDebts'].map((userDebt) => UserDebtModel.fromJson(userDebt)).toList(),
-    );
-  }
+    factory DebtDetailWithProduct.fromJson(Map<String, dynamic> json) {
+        return DebtDetailWithProduct(
+            debtDetail: json['debtDetail'],
+            product: json['product'],
+        );
+    }
 }
+
+

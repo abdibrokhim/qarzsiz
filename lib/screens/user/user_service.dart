@@ -25,65 +25,84 @@ class UserService {
     }
   }
 
-  static Future<List<ShopModel>> fetchShops(String userId) async {
-    print('fetching shops');
+  static Future<List<ShopModel>> fetchShopsWithDebts(String userId) async {
+    print('Fetching shops with debts for user $userId');
     try {
-      final debtList = FirebaseFirestore.instance.collection('user').doc(userId).collection('debt');
-      final shopIdList = await debtList.get();
-      print('shopIdList: $shopIdList');
+      // Querying the DebtRecords collection for the given userId
+      final debtRecordsQuery = FirebaseFirestore.instance.collection('debtRecords').where('user_id', isEqualTo: userId);
+      final debtRecordsResult = await debtRecordsQuery.get();
+      print('debtRecordsResult $debtRecordsResult');
 
-      // fetch shops from shop collection where doc path is in shopIdList
-      final shopCollection = FirebaseFirestore.instance.collection('shops');
-      final shops = await shopCollection.where('__name__', whereIn: shopIdList.docs.map((e) => e.id).toList()).get();
-      List<ShopModel> shopsList = [];
-      for (var shop in shops.docs) {
-        shopsList.add(ShopModel.fromJson(shop.data()));
+      // Extracting the list of unique shop IDs from the debt records
+      Set<String> shopIdSet = {};
+      for (var record in debtRecordsResult.docs) {
+        shopIdSet.add(record.data()['shop_id']);
       }
-      print("shopsList: $shopsList");
 
+      print('shopIdSet $shopIdSet');
+
+      // Querying the Shops collection for details on each shop
+      final shopCollection = FirebaseFirestore.instance.collection('shop');
+      List<ShopModel> shopsList = [];
+      for (String shopId in shopIdSet) {
+        var shopDoc = await shopCollection.doc(shopId).get();
+        if (shopDoc.exists) {
+          shopsList.add(ShopModel.fromJson(shopDoc.data() as Map<String, dynamic>));
+        }
+      }
+
+      print("Shops with debts: $shopsList");
       return shopsList;
     } catch (e) {
-      print("error while fetching shops: $e");
-      return Future.error('Failed to get shops');
+      print("Error while fetching shops with debts: $e");
+      return Future.error('Failed to fetch shops with debts');
     }
   }
 
-    static Future<List<ShopModel>> fetchUserShps(String userId) async {
-    print('fetching user shops');
+
+static Future<List<DebtDetailWithProduct>> fetchDebtDetailsForShop(String userId, String shopId) async {
+    print('Fetching debt details for shop $shopId for user $userId');
     try {
-      final shopCollection = FirebaseFirestore.instance.collection('user').doc(userId).collection('shops');
-      final shops = await shopCollection.get();
-      List<ShopModel> shopsList = [];
-      for (var shop in shops.docs) {
-        shopsList.add(ShopModel.fromJson(shop.data()));
-      }
-      print("shopsList: $shopsList");
+        // Step 1: Query DebtRecords for the given userId and shopId
+        final debtRecordsCollection = FirebaseFirestore.instance.collection('debtRecords');
+        final debtRecordsQuery = await debtRecordsCollection
+            .where('user_id', isEqualTo: userId)
+            .where('shop_id', isEqualTo: shopId)
+            .get();
 
-      return shopsList;
+        List<DebtDetailWithProduct> debtDetailsWithProductList = [];
+        // Step 2: For each DebtRecord, query its DebtDetails subcollection
+        for (var debtRecordDoc in debtRecordsQuery.docs) {
+            var debtDetailsSubCollection = debtRecordDoc.reference.collection('debtDetails');
+            var debtDetailsQuery = await debtDetailsSubCollection.get();
+            for (var debtDetailDoc in debtDetailsQuery.docs) {
+                // Fetch the associated product using the product_id
+                String productId = debtDetailDoc.data()['product_id'];
+                var productDoc = await FirebaseFirestore.instance.collection('products').doc(productId).get();
+                if (productDoc.exists) {
+                    var productData = productDoc.data() as Map<String, dynamic>;
+                    var product = ProductModel.fromJson(productData);
+
+                    var debtDetailData = debtDetailDoc.data();
+                    // Make sure to convert Timestamp to DateTime if necessary
+                    if (debtDetailData['createdAt'] is Timestamp) {
+                        debtDetailData['createdAt'] = (debtDetailData['createdAt'] as Timestamp).toDate();
+                    }
+                    var debtDetail = DebtDetail.fromJson(debtDetailData);
+
+                    debtDetailsWithProductList.add(DebtDetailWithProduct(debtDetail: debtDetail, product: product));
+                }
+            }
+        }
+
+        print("Debt details with products for shop $shopId: $debtDetailsWithProductList");
+        return debtDetailsWithProductList;
     } catch (e) {
-      print("error while fetching shops: $e");
-      return Future.error('Failed to get shops');
+        print("Error while fetching debt details with products for shop $shopId: $e");
+        return Future.error('Failed to fetch debt details with products for shop $shopId');
     }
-  }
+}
 
 
-  // TODO: fetch user debts from debts collection
-  static Future<List<ShopModel>> fetchUserDebts(String userId) async {
-    print('fetching user debts');
-    try {
-      final debtList = FirebaseFirestore.instance.collection('debts').doc(userId).collection('debt');
-      final userDebtList = await debtList.get();
-      print('userDebtList: $userDebtList');
-
-      return userDebtList;
-    } catch (e) {
-      print("error while fetching shops: $e");
-      return Future.error('Failed to get shops');
-    }
-  }
-
-  // TODO: fetch related shops from shops collection based on user debts collection data field 'shopId'
-
-  // TODO: fetch related products from shops collection doc field `shopId` and inside products collection doc field `productId` 
 
 }

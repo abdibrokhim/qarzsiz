@@ -14,8 +14,10 @@ class UserState {
   final String message;
   final List<String?> errors;
   final User? user;
-  final List<ShopModel>? shopsList;
-  final List<Product>? productList;
+  final List<DebtDetailWithProduct>? debtDetailList;
+  final List<ShopModel>? debList;
+  final ShopModel? selectedShop;
+  final bool isDebtDetailLoading;
 
   UserState({
     this.isLoading = false,
@@ -27,8 +29,10 @@ class UserState {
     this.message = '',
     this.errors = const [],
     this.user,
-    this.shopsList,
-    this.productList,
+    this.debtDetailList,
+    this.debList,
+    this.selectedShop,
+    this.isDebtDetailLoading = false,
   });
 
   UserState copyWith({
@@ -41,8 +45,10 @@ class UserState {
     String? message,
     List<String?>? errors,
     User? user,
-    List<ShopModel>? shopsList,
-    List<Product>? productList,
+    List<DebtDetailWithProduct>? debtDetailList,
+    List<ShopModel>? debList,
+    ShopModel? selectedShop,
+    bool? isDebtDetailLoading,
   }) {
     return UserState(
       isLoading: isLoading ?? this.isLoading,
@@ -54,8 +60,10 @@ class UserState {
       message: message ?? this.message,
       errors: errors ?? this.errors,
       user: user ?? this.user,
-      shopsList: shopsList ?? this.shopsList,
-      productList: productList ?? this.productList,
+      debtDetailList: debtDetailList ?? this.debtDetailList,
+      debList: debList ?? this.debList,
+      selectedShop: selectedShop ?? this.selectedShop,
+      isDebtDetailLoading: isDebtDetailLoading ?? this.isDebtDetailLoading,
     );
   }
 }
@@ -209,57 +217,71 @@ UserState logOutSuccessReducer(
 }
 
 
-// ========== fetch market list reducers ========== //
+// ========== FetchShopsWithDebtsAction reducers ========== //
 
-class FetchMarketListAction {
+class FetchShopsWithDebtsAction {
   final String userId;
-  FetchMarketListAction(this.userId);
+  FetchShopsWithDebtsAction(this.userId);
 }
 
-UserState fetchMarketListActionReducer(UserState state, FetchMarketListAction action) {
+UserState fetchMarketListActionReducer(UserState state, FetchShopsWithDebtsAction action) {
   return state.copyWith(isMarketListLoading: true);
 }
 
-class FetchMarketListSuccessAction {
-  List<ShopModel> shopsList;
+class FetchShopsWithDebtsResponse {
+  List<ShopModel> debList;
 
-  FetchMarketListSuccessAction(this.shopsList);
+  FetchShopsWithDebtsResponse(this.debList);
 }
 
-UserState fetchMarketListSuccessReducer(UserState state, FetchMarketListSuccessAction action) {
+UserState fetchMarketListSuccessReducer(UserState state, FetchShopsWithDebtsResponse action) {
   return state.copyWith(
     isMarketListLoading: false,
-    shopsList: action.shopsList,
+    debList: action.debList,
   );
 }
 
 
-// ========== fetch user market list reducers ========== //
+// ========== FetchDebtDetailsForShopAction reducers ========== //
 
 
-class FetchUserMarketListAction {
+class FetchDebtDetailsForShopAction {
   String userId;
+  String shopId;
 
-  FetchUserMarketListAction(this.userId);
+  FetchDebtDetailsForShopAction(this.userId, this.shopId);
 }
 
-UserState fetchUserMarketListActionReducer(UserState state, FetchUserMarketListAction action) {
-  return state.copyWith(isLoading: true);
+UserState fetchUserMarketListActionReducer(UserState state, FetchDebtDetailsForShopAction action) {
+  return state.copyWith(isDebtDetailLoading: true);
 }
 
-class FetchUserMarketListSuccessAction {
-  List<ShopModel> shopsList;
+class FetchDebtDetailsForShopResponse {
+  List<DebtDetailWithProduct> debtDetailList;
 
-  FetchUserMarketListSuccessAction(this.shopsList);
+  FetchDebtDetailsForShopResponse(this.debtDetailList);
 }
 
-UserState fetchUserMarketListSuccessReducer(UserState state, FetchUserMarketListSuccessAction action) {
+UserState fetchUserMarketListSuccessReducer(UserState state, FetchDebtDetailsForShopResponse action) {
   return state.copyWith(
-    isLoading: false,
-    shopsList: action.shopsList,
+    isDebtDetailLoading: false,
+    debtDetailList: action.debtDetailList,
   );
 }
 
+
+class SelectShopAction {
+  ShopModel shop;
+
+  SelectShopAction(this.shop);
+}
+
+
+UserState selectShopReducer(UserState state, SelectShopAction action) {
+  return state.copyWith(
+    selectedShop: action.shop,
+  );
+}
 
 
 
@@ -275,6 +297,9 @@ Reducer<UserState> userReducer = combineReducers<UserState>([
   TypedReducer<UserState, LogOutSuccessAction>(logOutSuccessReducer),
   TypedReducer<UserState, LoginAction>(loginReducer),
   TypedReducer<UserState, LoginSuccessAction>(loginSuccessReducer),
-  TypedReducer<UserState, FetchMarketListAction>(fetchMarketListActionReducer),
-  TypedReducer<UserState, FetchMarketListSuccessAction>(fetchMarketListSuccessReducer),
+  TypedReducer<UserState, FetchShopsWithDebtsAction>(fetchMarketListActionReducer),
+  TypedReducer<UserState, FetchShopsWithDebtsResponse>(fetchMarketListSuccessReducer),
+  TypedReducer<UserState, FetchDebtDetailsForShopAction>(fetchUserMarketListActionReducer),
+  TypedReducer<UserState, FetchDebtDetailsForShopResponse>(fetchUserMarketListSuccessReducer),
+  TypedReducer<UserState, SelectShopAction>(selectShopReducer),
 ]);

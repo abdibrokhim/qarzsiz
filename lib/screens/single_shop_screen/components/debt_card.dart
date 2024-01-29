@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TotalDeptWidget extends StatelessWidget {
   final double totalDept;
@@ -31,7 +32,18 @@ class TotalDeptWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: Row(children: [
+        Expanded(child: 
+        Image.network(
+                imageUrl,
+                fit: BoxFit.fitHeight,
+              ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: 
+      Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -63,7 +75,7 @@ class TotalDeptWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '${totalDept.toStringAsFixed(0)} UZS',
+            '${NumberFormat('#,##0').format(totalDept)} UZS',
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -71,6 +83,10 @@ class TotalDeptWidget extends StatelessWidget {
           ),
         ],
       ),
+      ),
+      ],
+      )
+
     );
   }
 }

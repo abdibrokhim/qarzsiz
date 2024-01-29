@@ -32,8 +32,7 @@ class _MainLayoutState extends State<MainLayout> {
 
     void reFetchData()  {
           print('refetching market list');
-        store.dispatch(FetchMarketListAction(store.state.appState.userState.user!.uid));
-        // store.dispatch(FetchDebtsAction(store.state.appState.userState.user!.uid));
+        store.dispatch(FetchShopsWithDebtsAction(store.state.appState.userState.user!.uid));
   }
 
   RefreshController _refreshController =
@@ -60,6 +59,7 @@ class _MainLayoutState extends State<MainLayout> {
     var state = StoreProvider.of<GlobalState>(context);
 
     var total = 100000;
+    var uP = 30000;
     var debtD = {
 
   '0xff00bc56': 0.5,
@@ -72,7 +72,7 @@ class _MainLayoutState extends State<MainLayout> {
         onInit: (app) {
           print('onInit');
           print('fetching market list');
-          store.dispatch(FetchMarketListAction(store.state.appState.userState.user!.uid));
+          store.dispatch(FetchShopsWithDebtsAction(store.state.appState.userState.user!.uid));
         },
         converter: (store) => store.state.appState.userState,
         builder: (context, userState) {
@@ -103,9 +103,10 @@ class _MainLayoutState extends State<MainLayout> {
               child:
           Column(
             children: [
-              TotalDeptWidget(
-                totalDept: total.toDouble(),
-                deptDistribution: debtD,
+              TotalDebtCard(
+                totalDebt: total.toDouble(),
+                // deptDistribution: debtD,
+                unpaidDebt: uP.toDouble(),
               ),
               const SizedBox(height: 32.0,),
 
