@@ -58,15 +58,22 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     var state = StoreProvider.of<GlobalState>(context);
 
-    var total = 100000;
-    var uP = 30000;
-    var debtD = {
+    var total = state.state.appState.userState.debtDetailList?.fold<double>(0, (previousValue, element) => 
+    previousValue + element.debtDetail.quantity * double.parse(element.product.price)) ?? 0;
 
-  '0xff00bc56': 0.5,
-  '0xffB9DE6D': 0.3,
-  '0xff601875': 0.2,
+var unpaidTotal = state.state.appState.userState.debtDetailList
+    ?.where((element) => !element.debtDetail.isPaid) // Filter for isPaid == false
+    .fold<double>(0, (previousValue, element) =>
+        previousValue + element.debtDetail.quantity * double.parse(element.product.price)) ?? 0;
 
-                };
+// TODO: later on we will use this to show the debt distribution, among the shops
+  //   var debtD = {
+
+  // '0xff00bc56': 0.5,
+  // '0xffB9DE6D': 0.3,
+  // '0xff601875': 0.2,
+
+  //               };
 
       return StoreConnector<GlobalState, UserState>(
         onInit: (app) {
@@ -106,7 +113,7 @@ class _MainLayoutState extends State<MainLayout> {
               TotalDebtCard(
                 totalDebt: total.toDouble(),
                 // deptDistribution: debtD,
-                unpaidDebt: uP.toDouble(),
+                unpaidDebt: unpaidTotal.toDouble(),
               ),
               const SizedBox(height: 32.0,),
 

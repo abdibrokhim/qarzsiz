@@ -22,6 +22,8 @@ class ProductListWidget extends StatefulWidget {
 class _ProductListWidgetState extends State<ProductListWidget> {
   TextEditingController searchController = TextEditingController();
 
+  List<DebtDetailWithProduct> filter = store.state.appState.userState.debtDetailList ?? [];
+
 
   @override
   void initState() {
@@ -60,9 +62,10 @@ class _ProductListWidgetState extends State<ProductListWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print('i am rebuilding product list');
+
       var state = StoreProvider.of<GlobalState>(context).state.appState.userState;
     
-    List<DebtDetailWithProduct> filter = state.debtDetailList ?? [];
 
     return StoreConnector<GlobalState, UserState>(
       onInit: (app) {
@@ -129,14 +132,17 @@ class _ProductListWidgetState extends State<ProductListWidget> {
             ),
           ),
                             onChanged: (String value) {
+                              setState(() {
+                                
                     // Filter the list of shops based on the search query
                     filter = (state.debtDetailList! ?? []).where((product) {
-                      return product.product.name.toLowerCase().contains(value.toLowerCase()) || 
-                      product.product.price.toLowerCase().contains(value.toLowerCase()) ||
-                      product.debtDetail.createdAt.toString().contains(value.toLowerCase());
+                      return product.product.name.toLowerCase().contains(value.toLowerCase());
+                      // product.product.price.toLowerCase().contains(value.toLowerCase()) ||
+                      // product.debtDetail.createdAt.toString().contains(value.toLowerCase());
                     }).toList();
                     // Update the UI
                     (context as Element).markNeedsBuild();
+                              });
                   },
         ),
     ),

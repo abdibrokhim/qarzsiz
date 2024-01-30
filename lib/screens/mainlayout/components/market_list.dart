@@ -17,14 +17,17 @@ class MarketGridWidget extends StatefulWidget {
 }
 
 class _MarketGridWidgetState extends State<MarketGridWidget> {
+
   TextEditingController searchController = TextEditingController();
 
+    List<ShopModel> filteredShops = store.state.appState.userState.debList ?? [];
 
   @override
   Widget build(BuildContext context) {
+
       var state = StoreProvider.of<GlobalState>(context).state.appState.userState;
     
-    List<ShopModel> filteredShops = state.debList ?? [];
+    
 
     return Column(
       children: [
@@ -53,12 +56,15 @@ class _MarketGridWidgetState extends State<MarketGridWidget> {
             ),
           ),
                             onChanged: (String value) {
+                              setState(() {
+                                
                     // Filter the list of shops based on the search query
                     filteredShops = (state.debList ?? []).where((shop) {
                       return shop.name.toLowerCase().contains(value.toLowerCase());
                     }).toList();
                     // Update the UI
                     (context as Element).markNeedsBuild();
+                              });
                   },
         ),
     ),
